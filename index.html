@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的谷子</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #f7f4fa;
+    color: #39343d;
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "PingFang SC",
+        "Microsoft YaHei",
+        sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+.app {
+    max-width: 1100px;
+    margin: auto;
+    padding: 28px 24px 80px;
+}
+
+/* 顶部 */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+}
+
+.logo {
+    font-size: 30px;
+    font-weight: 700;
+    color: #66558f;
+}
+
+.subtitle {
+    margin-top: 5px;
+    color: #9a939f;
+    font-size: 14px;
+}
+
+.add-btn {
+    border: 0;
+    padding: 12px 20px;
+    border-radius: 14px;
+    color: white;
+    background: #7564a8;
+    box-shadow: 0 6px 18px rgba(117,100,168,.2);
+}
+
+/* 统计卡 */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 26px;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 5px 20px rgba(80,65,100,.05);
+}
+
+.stat-label {
+    color: #99929e;
+    font-size: 13px;
+}
+
+.stat-value {
+    margin-top: 8px;
+    font-size: 28px;
+    font-weight: 700;
+    color: #4a4254;
+}
+
+/* 搜索 */
+.toolbar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.search {
+    flex: 1;
+    border: 0;
+    background: white;
+    padding: 14px 18px;
+    border-radius: 15px;
+    outline: none;
+    box-shadow: 0 4px 15px rgba(80,65,100,.04);
+}
+
+.filter {
+    border: 0;
+    background: white;
+    padding: 0 16px;
+    border-radius: 15px;
+    color: #6f6874;
+}
+
+/* 分类 */
+.categories {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+
+.category {
+    border: 0;
+    background: #eeeaf4;
+    color: #746984;
+    padding: 8px 15px;
+    border-radius: 999px;
+}
+
+.category.active {
+    background: #7564a8;
+    color: white;
+}
+
+/* 收藏网格 */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+}
+
+.item {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(80,65,100,.05);
+    transition: .2s;
+}
+
+.item:hover {
+    transform: translateY(-3px);
+}
+
+.item-img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    background: #eeeaf3;
+}
+
+.no-img {
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #aaa2b1;
+    background: #eeeaf3;
+}
+
+.item-info {
+    padding: 14px;
+}
+
+.item-name {
+    font-weight: 700;
+    margin-bottom: 7px;
+}
+
+.item-meta {
+    font-size: 12px;
+    color: #99929e;
+    line-height: 1.7;
+}
+
+.tag {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: #f0ecf7;
+    color: #7564a8;
+    font-size: 11px;
+}
+
+/* 弹窗 */
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(40,35,45,.4);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 10;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-box {
+    width: min(600px, 100%);
+    max-height: 90vh;
+    overflow-y: auto;
+    background: white;
+    border-radius: 25px;
+    padding: 28px;
+}
+
+.modal-title {
+    font-size: 23px;
+    font-weight: 700;
+    margin-bottom: 22px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.form-item {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.form-item.full {
+    grid-column: 1 / -1;
+}
+
+.form-item label {
+    font-size: 13px;
+    color: #77707d;
+}
+
+.form-item input,
+.form-item select,
+.form-item textarea {
+    border: 1px solid #e5e0e8;
+    border-radius: 12px;
+    padding: 11px;
+    outline: none;
+}
+
+.form-item textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.image-preview {
+    width: 130px;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 15px;
+    margin-top: 10px;
+    display: none;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.save {
+    flex: 1;
+    border: 0;
+    background: #7564a8;
+    color: white;
+    padding: 13px;
+    border-radius: 13px;
+}
+
+.cancel {
+    border: 0;
+    background: #eeeaf3;
+    padding: 13px 22px;
+    border-radius: 13px;
+}
+
+.delete {
+    border: 0;
+    background: #f7e7eb;
+    color: #a55368;
+    padding: 13px 18px;
+    border-radius: 13px;
+}
+
+/* 手机 */
+@media (max-width: 800px) {
+    .stats {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-item.full {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 500px) {
+    .app {
+        padding: 20px 15px 70px;
+    }
+
+    .header {
+        align-items: flex-start;
+    }
+
+    .logo {
+        font-size: 25px;
+    }
+
+    .add-btn {
+        padding: 10px 14px;
+    }
+
+    .toolbar {
+        flex-direction: column;
+    }
+
+    .filter {
+        padding: 12px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <header class="header">
+        <div>
+            <div class="logo">我的谷子 ✦</div>
+            <div class="subtitle">把喜欢的收藏整理成自己的图鉴</div>
+        </div>
+
+        <button class="add-btn" onclick="openModal()">
+            ＋ 添加谷子
+        </button>
+    </header>
+
+
+    <!-- 统计 -->
+    <section class="stats">
+
+        <div class="stat-card">
+            <div class="stat-label">收藏数量</div>
+            <div class="stat-value" id="count">0</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">收藏款数</div>
+            <div class="stat-value" id="pieces">0</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">累计投入</div>
+            <div class="stat-value">¥<span id="total">0</span></div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">想要 / 在路上</div>
+            <div class="stat-value" id="wanted">0</div>
+        </div>
+
+    </section>
+
+
+    <!-- 搜索 -->
+    <section class="toolbar">
+
+        <input
+            id="search"
+            class="search"
+            placeholder="搜索谷子、角色、作品、系列……"
+            oninput="render()"
+        >
+
+        <select id="statusFilter" class="filter" onchange="render()">
+            <option value="all">全部状态</option>
+            <option value="owned">已拥有</option>
+            <option value="wanted">想要</option>
+            <option value="shipping">在路上</option>
+        </select>
+
+    </section>
+
+
+    <!-- 分类 -->
+    <section class="categories">
+
+        <button class="category active" data-type="all" onclick="setType('all',this)">
+            全部
+        </button>
+
+        <button class="category" data-type="吧唧" onclick="setType('吧唧',this)">
+            吧唧
+        </button>
+
+        <button class="category" data-type="亚克力" onclick="setType('亚克力',this)">
+            亚克力
+        </button>
+
+        <button class="category" data-type="立牌" onclick="setType('立牌',this)">
+            立牌
+        </button>
+
+        <button class="category" data-type="卡片" onclick="setType('卡片',this)">
+            卡片
+        </button>
+
+        <button class="category" data-type="色纸" onclick="setType('色纸',this)">
+            色纸
+        </button>
+
+        <button class="category" data-type="毛绒" onclick="setType('毛绒',this)">
+            毛绒
+        </button>
+
+        <button class="category" data-type="挂件" onclick="setType('挂件',this)">
+            挂件
+        </button>
+
+        <button class="category" data-type="其他" onclick="setType('其他',this)">
+            其他
+        </button>
+
+    </section>
+
+
+    <!-- 谷子 -->
+    <main id="grid" class="grid"></main>
+
+</div>
+
+
+<!-- 添加/编辑弹窗 -->
+<div id="modal" class="modal">
+
+    <div class="modal-box">
+
+        <div class="modal-title" id="modalTitle">
+            添加谷子
+        </div>
+
+        <div class="form-grid">
+
+            <div class="form-item full">
+                <label>图片</label>
+
+                <input
+                    type="file"
+                    accept="image/*"
+                    onchange="previewImage(event)"
+                >
+
+                <img id="preview" class="image-preview">
+            </div>
+
+
+            <div class="form-item full">
+                <label>谷子名称</label>
+                <input id="name" placeholder="例如：叶瑄58mm吧唧">
+            </div>
+
+
+            <div class="form-item">
+                <label>作品 / IP</label>
+                <input id="work" placeholder="时空中的绘旅人">
+            </div>
+
+
+            <div class="form-item">
+                <label>角色</label>
+                <input id="character" placeholder="叶瑄">
+            </div>
+
+
+            <div class="form-item">
+                <label>类型</label>
+
+                <select id="type">
+                    <option>吧唧</option>
+                    <option>亚克力</option>
+                    <option>立牌</option>
+                    <option>卡片</option>
+                    <option>色纸</option>
+                    <option>毛绒</option>
+                    <option>挂件</option>
+                    <option>其他</option>
+                </select>
+
+            </div>
+
+
+            <div class="form-item">
+                <label>系列</label>
+                <input id="series" placeholder="例如：白色情人节">
+            </div>
+
+
+            <div class="form-item">
+                <label>尺寸</label>
+                <input id="size" placeholder="例如：58mm">
+            </div>
+
+
+            <div class="form-item">
+                <label>数量</label>
+                <input id="quantity" type="number" min="1" value="1">
+            </div>
+
+
+            <div class="form-item">
+                <label>单价（元）</label>
+                <input id="price" type="number" min="0" step="0.01">
+            </div>
+
+
+            <div class="form-item">
+                <label>购买日期</label>
+                <input id="date" type="date">
+            </div>
+
+
+            <div class="form-item">
+                <label>购买渠道</label>
+                <input id="shop" placeholder="谷店 / 闲鱼 / 官方">
+            </div>
+
+
+            <div class="form-item">
+                <label>状态</label>
+
+                <select id="status">
+                    <option value="owned">已拥有</option>
+                    <option value="wanted">想要</option>
+                    <option value="shipping">在路上</option>
+                </select>
+
+            </div>
+
+
+            <div class="form-item full">
+                <label>备注</label>
+
+                <textarea
+                    id="memo"
+                    placeholder="版本、特典、瑕疵、来源等……"
+                ></textarea>
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-actions">
+
+            <button class="cancel" onclick="closeModal()">
+                取消
+                </button>
+
+            <button
+                id="deleteBtn"
+                class="delete"
+                style="display:none"
+                onclick="deleteItem()"
+            >
+                删除
+            </button>
+
+            <button class="save" onclick="saveItem()">
+                保存
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+let items = JSON.parse(localStorage.getItem("goodsCollection") || "[]");
+
+let currentType = "all";
+
+let editingId = null;
+
+let currentImage = "";
+
+
+/* 保存数据 */
+
+function saveData() {
+
+    localStorage.setItem(
+        "goodsCollection",
+        JSON.stringify(items)
+    );
+
+}
+
+
+/* 打开弹窗 */
+
+function openModal(id = null) {
+
+    editingId = id;
+
+    currentImage = "";
+
+    document
+        .getElementById("modal")
+        .classList.add("show");
+
+    document.getElementById("modalTitle").textContent =
+        id ? "编辑谷子" : "添加谷子";
+
+    document.getElementById("deleteBtn").style.display =
+        id ? "block" : "none";
+
+
+    if (id) {
+
+        const item =
+            items.find(x => x.id === id);
+
+        if (!item) return;
+
+
+        document.getElementById("name").value =
+            item.name || "";
+
+        document.getElementById("work").value =
+            item.work || "";
+
+        document.getElementById("character").value =
+            item.character || "";
+
+        document.getElementById("type").value =
+            item.type || "其他";
+
+        document.getElementById("series").value =
+            item.series || "";
+
+        document.getElementById("size").value =
+            item.size || "";
+
+        document.getElementById("quantity").value =
+            item.quantity || 1;
+
+        document.getElementById("price").value =
+            item.price || "";
+
+        document.getElementById("date").value =
+            item.date || "";
+
+        document.getElementById("shop").value =
+            item.shop || "";
+
+        document.getElementById("status").value =
+            item.status || "owned";
+
+        document.getElementById("memo").value =
+            item.memo || "";
+
+
+        currentImage = item.image || "";
+
+        if (currentImage) {
+
+            document.getElementById("preview").src =
+                currentImage;
+
+            document.getElementById("preview").style.display =
+                "block";
+
+        }
+
+    } else {
+
+        clearForm();
+
+    }
+
+}
+
+
+/* 清空表单 */
+
+function clearForm() {
+
+    document
+        .querySelectorAll(".modal-box input, .modal-box textarea")
+        .forEach(el => {
+
+            if (el.type !== "file") {
+
+                el.value = "";
+
+            }
+
+        });
+
+
+    document.getElementById("quantity").value = 1;
+
+    document.getElementById("type").value = "吧唧";
+
+    document.getElementById("status").value = "owned";
+
+    document.getElementById("preview").style.display =
+        "none";
+
+}
+
+
+/* 关闭 */
+
+function closeModal() {
+
+    document
+        .getElementById("modal")
+        .classList.remove("show");
+
+}
+
+
+/* 图片 */
+
+function previewImage(event) {
+
+    const file =
+        event.target.files[0];
+
+    if (!file) return;
+
+
+    const reader =
+        new FileReader();
+
+    reader.onload = function(e) {
+
+        currentImage =
+            e.target.result;
+
+        const preview =
+            document.getElementById("preview");
+
+        preview.src =
+            currentImage;
+
+        preview.style.display =
+            "block";
+
+    };
+
+    reader.readAsDataURL(file);
+
+}
+
+
+/* 保存 */
+
+function saveItem() {
+
+    const name =
+        document.getElementById("name").value.trim();
+
+    if (!name) {
+
+        alert("请填写谷子名称");
+
+        return;
+
+    }
+
+
+    const item = {
+
+        id: editingId || Date.now(),
+
+        name,
+
+        work:
+            document.getElementById("work").value.trim(),
+
+        character:
+            document.getElementById("character").value.trim(),
+
+        type:
+            document.getElementById("type").value,
+
+        series:
+            document.getElementById("series").value.trim(),
+
+        size:
+            document.getElementById("size").value.trim(),
+
+        quantity:
+            Number(document.getElementById("quantity").value) || 1,
+
+        price:
+            Number(document.getElementById("price").value) || 0,
+
+        date:
+            document.getElementById("date").value,
+
+        shop:
+            document.getElementById("shop").value.trim(),
+
+        status:
+            document.getElementById("status").value,
+
+        memo:
+            document.getElementById("memo").value.trim(),
+
+        image:
+            currentImage
+
+    };
+
+
+    if (editingId) {
+
+        const index =
+            items.findIndex(x => x.id === editingId);
+
+        items[index] = item;
+
+    } else {
+
+        items.unshift(item);
+
+    }
+
+
+    saveData();
+
+    closeModal();
+
+    render();
+
+}
+
+
+/* 删除 */
+
+function deleteItem() {
+
+    if (!editingId) return;
+
+
+    if (!confirm("确定删除这件谷子吗？")) return;
+
+
+    items =
+        items.filter(x => x.id !== editingId);
+
+
+    saveData();
+
+    closeModal();
+
+    render();
+
+}
+
+
+/* 分类 */
+
+function setType(type, button) {
+
+    currentType = type;
+
+
+    document
+        .querySelectorAll(".category")
+        .forEach(x =>
+            x.classList.remove("active")
+        );
+
+
+    button.classList.add("active");
+
+    render();
+
+}
+
+
+/* 渲染 */
+
+function render() {
+
+    const keyword =
+        document
+            .getElementById("search")
+            .value
+            .toLowerCase();
+
+    const status =
+        document
+            .getElementById("statusFilter")
+            .value;
+
+
+    let list =
+        items.filter(item => {
+
+            const text = (
+
+                item.name +
+
+                item.work +
+
+                item.character +
+
+                item.series +
+
+                item.type
+
+            ).toLowerCase();
+
+
+            const matchKeyword =
+                text.includes(keyword);
+
+
+            const matchType =
+                currentType === "all" ||
+                item.type === currentType;
+
+
+            const matchStatus =
+                status === "all" ||
+                item.status === status;
+
+
+            return (
+                matchKeyword &&
+                matchType &&
+                matchStatus
+            );
+
+        });
+
+
+    const grid =
+        document.getElementById("grid");
+
+
+    if (!list.length) {
+
+        grid.innerHTML = `
+
+            <div style="
+                grid-column:1/-1;
+                background:white;
+                border-radius:20px;
+                padding:70px 20px;
+                text-align:center;
+                color:#9b949f;
+            ">
+
+                <div style="font-size:45px">
+                    ✦
+                </div>
+
+                <div style="margin-top:12px">
+                    暂时没有找到谷子
+                </div>
+
+            </div>
+
+        `;
+
+    } else {
+
+        grid.innerHTML =
+            list.map(createCard).join("");
+
+    }
+
+
+    updateStats();
+
+}
+
+
+/* 卡片 */
+
+function createCard(item) {
+
+    const image =
+        item.image
+
+        ? `<img
+            class="item-img"
+            src="${item.image}"
+            alt=""
+          >`
+
+        : `<div class="no-img">
+            暂无图片
+          </div>`;
+
+
+    const statusText = {
+
+        owned: "已拥有",
+
+        wanted: "想要",
+
+        shipping: "在路上"
+
+    }[item.status];
+
+
+    return `
+
+        <article
+            class="item"
+            onclick="openModal(${item.id})"
+        >
+
+            ${image}
+
+            <div class="item-info">
+
+                <div class="item-name">
+                    ${escapeHtml(item.name)}
+                </div>
+
+                <div class="item-meta">
+
+                    ${escapeHtml(item.work || "")}
+
+                    ${item.character
+                        ? " · " + escapeHtml(item.character)
+                        : ""
+                    }
+
+                    <br>
+
+                    ${item.series
+                        ? escapeHtml(item.series) + " · "
+                        : ""
+                    }
+
+                    ${item.size
+                        ? escapeHtml(item.size)
+                        : ""
+                    }
+
+                    <br>
+
+                    ×${item.quantity}
+
+                    ${item.price
+                        ? " · ¥" +
+                          (item.price * item.quantity).toFixed(2)
+                        : ""
+                    }
+
+                </div>
+
+                <span class="tag">
+                    ${statusText}
+                </span>
+
+            </div>
+
+        </article>
+
+    `;
+
+}
+
+
+/* 防止 HTML 注入 */
+
+function escapeHtml(text) {
+
+    return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+/* 统计 */
+
+function updateStats() {
+
+    let count = items.length;
+
+    let pieces = 0;
+
+    let total = 0;
+
+    let wanted = 0;
+
+
+    items.forEach(item => {
+
+        const quantity =
+            Number(item.quantity) || 1;
+
+        const price =
+            Number(item.price) || 0;
+
+
+        pieces += quantity;
+
+        total +=
+            quantity * price;
+
+
+        if (item.status !== "owned") {
+
+            wanted++;
+
+        }
+
+    });
+
+
+    document.getElementById("count").textContent =
+        count;
+
+    document.getElementById("pieces").textContent =
+        pieces;
+
+    document.getElementById("total").textContent =
+        total.toFixed(2);
+
+    document.getElementById("wanted").textContent =
+        wanted;
+
+}
+
+
+/* 初始化 */
+
+render();
+
+</script>
+
+</body>
+</html>
