@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的谷子</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--page-bg, #f7f4fa);
+    color: #39343d;
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "PingFang SC",
+        "Microsoft YaHei",
+        sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+.app {
+    max-width: 1120px;
+    margin: auto;
+    padding: 24px 18px 80px;
+}
+
+/* 顶部 */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+    min-width: 0;
+}
+
+.logo {
+    font-size: 30px;
+    font-weight: 700;
+    color: #66558f;
+    white-space: nowrap;
+}
+
+.subtitle {
+    margin-top: 5px;
+    color: #9a939f;
+    font-size: 14px;
+}
+
+.add-btn {
+    border: 0;
+    padding: 12px 20px;
+    border-radius: 14px;
+    color: white;
+    background: #7564a8;
+    box-shadow: 0 6px 18px rgba(117,100,168,.2);
+}
+
+/* 顶部操作栏 */
+.header-actions{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:5px;
+    align-items:center;
+    justify-content:end;
+    width:min(230px,46vw);
+    margin-top:8px;
+}
+.tool-btn,.settings-btn,.add-btn{
+    min-width:0;
+    width:100%;
+    border:0;
+    padding:8px 10px;
+    border-radius:11px;
+    font-size:12px;
+    line-height:1.25;
+    white-space:nowrap;
+}
+.tool-btn{background:#eeeaf4;color:#685e78}
+.tool-btn:hover{background:#e4dff0}
+.settings-btn{background:#eeeaf4;color:#7564a8;cursor:pointer}
+.add-btn{padding:8px 11px;background:#7564a8;color:#fff;box-shadow:0 5px 14px rgba(117,100,168,.16);grid-column:1 / -1}
+
+/* 紧凑统计条：替代原来的四张统计卡 */
+.stats-strip{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    background:#fff;
+    border-radius:18px;
+    box-shadow:0 5px 20px rgba(80,65,100,.05);
+    margin-bottom:14px;
+    overflow:hidden;
+}
+.stat-item{
+    min-height:88px;
+    padding:15px 18px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    border-right:1px solid #eee9f0;
+}
+.stat-item:last-child{border-right:0}
+.stat-label{color:#99929e;font-size:12px;line-height:1.3}
+.stat-value{margin-top:5px;font-size:29px;line-height:1;font-weight:750;color:#4a4254}
+
+/* 吃谷分类条形图 */
+.type-chart-panel{
+    background:#fff;
+    border-radius:18px;
+    padding:16px 18px 18px;
+    margin-bottom:18px;
+    box-shadow:0 5px 20px rgba(80,65,100,.05);
+}
+.type-chart-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.type-chart-title{font-size:16px;font-weight:700;color:#5c5268}
+.type-chart-subtitle{font-size:11px;color:#aaa2b0;margin-top:3px}
+.type-bars{display:flex;flex-direction:column;gap:9px}
+.type-bar-row{display:grid;grid-template-columns:66px minmax(0,1fr) 34px;align-items:center;gap:9px}
+.type-bar-name{font-size:12px;color:#766d80;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.type-bar-track{height:20px;border-radius:999px;background:#f0edf4;overflow:hidden}
+.type-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#9b88c7,#c7b8df)}
+.type-bar-count{font-size:12px;font-weight:700;color:#5d536a;text-align:right}
+.type-chart-empty{padding:10px 0;color:#aaa2b0;font-size:12px}
+
+/* 搜索 */
+.toolbar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.search {
+    flex: 1;
+    border: 0;
+    background: white;
+    padding: 14px 18px;
+    border-radius: 20px;
+    font-size: 15px;
+    outline: none;
+    box-shadow: 0 4px 15px rgba(80,65,100,.04);
+}
+
+.filter {
+    border: 0;
+    background: white;
+    padding: 0 16px;
+    border-radius: 20px;
+    color: #6f6874;
+}
+
+/* 分类 */
+.categories {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+
+.category {
+    border: 0;
+    background: #eeeaf4;
+    color: #746984;
+    padding: 8px 15px;
+    border-radius: 999px;
+}
+
+.category.active {
+    background: #7564a8;
+    color: white;
+}
+
+/* 收藏网格 */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+}
+
+.item {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(80,65,100,.05);
+    transition: .2s;
+}
+
+.item:hover {
+    transform: translateY(-3px);
+}
+
+.item-img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    background: #eeeaf3;
+}
+
+.no-img {
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #aaa2b1;
+    background: #eeeaf3;
+}
+
+.item-info {
+    padding: 14px;
+}
+
+.item-name {
+    font-weight: 700;
+    margin-bottom: 7px;
+}
+
+.item-meta {
+    font-size: 12px;
+    color: #99929e;
+    line-height: 1.7;
+}
+
+.tag {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: #f0ecf7;
+    color: #7564a8;
+    font-size: 11px;
+}
+
+/* 批量添加弹窗：仅修复批量添加界面样式，恢复为独立居中的弹窗，不影响页面其他布局 */
+.bulk-modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(40,35,45,.42);
+    align-items:center;
+    justify-content:center;
+    padding:14px;
+    z-index:30;
+}
+.bulk-modal.show{display:flex}
+.bulk-box{
+    width:min(1250px,100%);
+    max-height:92vh;
+    overflow:auto;
+    background:#fff;
+    border-radius:24px;
+    padding:22px;
+}
+.bulk-title{font-size:22px;font-weight:750;margin-bottom:8px}
+.bulk-help{font-size:12px;color:#8b8491;line-height:1.7;margin-bottom:12px}
+.bulk-note{background:#f3eef9;color:#695d7a;border-radius:12px;padding:10px 12px;font-size:12px;margin-bottom:12px}
+.bulk-table-wrap{overflow:auto;border:1px solid #e5dfe9;border-radius:12px}
+.bulk-table{width:100%;border-collapse:collapse;min-width:1120px}
+.bulk-table th,.bulk-table td{border-bottom:1px solid #eee9f0;padding:6px}
+.bulk-table th{background:#faf8fc;color:#77707d;font-size:12px;white-space:nowrap}
+.bulk-table input,.bulk-table select{width:100%;min-width:75px;padding:8px;border:1px solid #e5e0e8;border-radius:8px;background:#fff}
+.bulk-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.bulk-actions button{border:0;padding:10px 13px;border-radius:12px}
+.bulk-primary{background:#7564a8;color:#fff}
+.bulk-secondary{background:#eeeaf4;color:#685e78}
+.paste-area{display:none;width:100%;min-height:150px;margin-top:12px;border:1px solid #e5e0e8;border-radius:12px;padding:10px}
+@media(max-width:650px){
+    .bulk-modal{padding:10px}
+    .bulk-box{max-height:94vh;padding:16px;border-radius:20px}
+    .bulk-title{font-size:20px}
+}
+
+/* 弹窗 */
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(40,35,45,.4);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 10;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-box {
+    width: min(600px, 100%);
+    max-height: 90vh;
+    overflow-y: auto;
+    background: white;
+    border-radius: 25px;
+    padding: 28px;
+}
+
+.modal-title {
+    font-size: 23px;
+    font-weight: 700;
+    margin-bottom: 22px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.form-item {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.form-item.full {
+    grid-column: 1 / -1;
+}
+
+.form-item label {
+    font-size: 13px;
+    color: #77707d;
+}
+
+.form-item input,
+.form-item select,
+.form-item textarea {
+    border: 1px solid #e5e0e8;
+    border-radius: 12px;
+    padding: 11px;
+    outline: none;
+}
+
+.form-item textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.image-preview {
+    width: 130px;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 15px;
+    margin-top: 10px;
+    display: none;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.save {
+    flex: 1;
+    border: 0;
+    background: #7564a8;
+    color: white;
+    padding: 13px;
+    border-radius: 13px;
+}
+
+.cancel {
+    border: 0;
+    background: #eeeaf3;
+    padding: 13px 22px;
+    border-radius: 13px;
+}
+
+.delete {
+    border: 0;
+    background: #f7e7eb;
+    color: #a55368;
+    padding: 13px 18px;
+    border-radius: 13px;
+}
+
+/* 手机 */
+@media (max-width: 800px) {
+    .stats {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-item.full {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 500px) {
+    .app {
+        padding: 20px 15px 70px;
+    }
+
+    .header {
+        align-items: flex-start;
+    }
+
+    .logo {
+        font-size: 25px;
+    }
+
+    .add-btn {
+        padding: 10px 14px;
+    }
+
+    .toolbar {
+        flex-direction: column;
+    }
+
+    .filter {
+        padding: 12px;
+    }
+}
+
+
+:root{--page-bg:#f7f4fa}
+.categories{display:block;margin-bottom:24px}
+.categories-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;color:#8d8494;font-size:13px}
+.category-buttons{display:flex;flex-wrap:wrap;gap:8px}
+.manage-category-btn,.settings-btn{border:0;border-radius:12px;padding:8px 13px;background:#eeeaf4;color:#7564a8;cursor:pointer}
+.settings-modal,.category-modal{display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;padding:20px;background:rgba(40,35,45,.42)}
+.settings-modal.show,.category-modal.show{display:flex}
+.settings-box,.category-box{width:min(520px,100%);max-height:88vh;overflow:auto;background:#fff;border-radius:24px;padding:24px;box-sizing:border-box}
+.settings-title,.category-title{font-size:21px;font-weight:700;margin-bottom:18px;color:#514b59}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0 18px}
+#bgColor{width:58px;height:38px;padding:0;border:0;background:transparent;cursor:pointer}
+.category-list{display:flex;flex-direction:column;gap:10px}
+.category-edit-row{display:flex;gap:8px}
+.category-edit-row input,.category-add-row input{flex:1;min-width:0;border:1px solid #e2dde7;border-radius:11px;padding:10px 12px;box-sizing:border-box}
+.category-remove{width:42px;height:42px;border:0;border-radius:11px;background:#f7e8ed;color:#a4576c;font-size:18px;cursor:pointer}
+.category-add-row{display:flex;gap:8px;margin-top:14px}
+.category-add-row button,.settings-actions button,.category-actions button{border:0;border-radius:12px;padding:11px;cursor:pointer}
+.settings-actions,.category-actions{display:flex;gap:9px;margin-top:20px}
+.settings-actions button,.category-actions button{flex:1}
+.settings-save,.category-save{background:#7564a8;color:#fff}
+.settings-cancel,.category-cancel{background:#eeeaf4;color:#625b69}
+.author-footer{text-align:center;padding:28px 0 14px;color:#aaa2b0;font-size:12px}
+
+
+
+@media (max-width:800px){
+    .stats-strip{grid-template-columns:repeat(2,1fr)}
+    .stat-item:nth-child(2){border-right:0}
+    .stat-item:nth-child(-n+2){border-bottom:1px solid #eee9f0}
+}
+@media (max-width:650px){
+    .header{align-items:flex-start;gap:12px}
+    .header-actions{width:190px;max-width:48vw;margin-top:10px}
+    .tool-btn,.settings-btn,.add-btn{font-size:12px;padding:8px 9px}
+    .logo{font-size:26px;white-space:nowrap}
+    .subtitle{font-size:12px}
+    .type-chart-panel{padding:14px}
+    .type-bar-row{grid-template-columns:54px minmax(0,1fr) 28px;gap:7px}
+    .type-chart-head{align-items:flex-start}
+}
+@media (max-width:500px){
+    .app{padding:18px 12px 70px}
+    .stats-strip{grid-template-columns:1fr 1fr}
+    .stat-item{min-height:76px;padding:12px 13px}
+    .stat-value{font-size:25px}
+    .toolbar{flex-direction:column}
+    .filter{padding:12px 14px}
+    .search{font-size:15px}
+}
+
+/* ===== 第二页：约稿稿件 ===== */
+.page-nav{position:relative;display:flex;gap:4px;align-items:center;margin:0 0 18px;padding:4px;background:rgba(255,255,255,.62);border-radius:14px;width:max-content;box-shadow:0 4px 15px rgba(80,65,100,.04)}
+.page-tab{border:0;background:#7564a8;color:#fff;padding:8px 14px;border-radius:10px;font-size:12px}
+.page-secret-toggle{border:0;background:transparent;color:#aaa1b1;width:30px;height:30px;border-radius:9px;font-size:15px;line-height:1;cursor:pointer;transition:.18s}
+.page-secret-toggle:hover,.page-secret-toggle:focus-visible{background:#eeeaf4;color:#7564a8;outline:none}
+.page-secret-menu{position:absolute;left:0;top:calc(100% + 7px);display:none;flex-direction:column;gap:5px;min-width:118px;padding:6px;background:rgba(255,255,255,.96);border:1px solid rgba(117,100,168,.10);border-radius:12px;box-shadow:0 10px 26px rgba(80,65,100,.10);z-index:12}
+.page-secret-menu.show{display:flex}
+.page-secret-item{border:0;background:#eeeaf4;color:#7564a8;padding:8px 11px;border-radius:9px;font-size:12px;text-align:left;white-space:nowrap;cursor:pointer}
+.page-secret-item.secondary{background:#f7f4fa;color:#9a91a2;font-size:11px}
+.page-secret-item:active{transform:scale(.98)}
+.page-view{display:none}.page-view.active{display:block}
+.commission-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:4px 0 18px}
+.commission-title{font-size:24px;font-weight:750;color:#5d526b}.commission-subtitle{font-size:12px;color:#aaa2b0;margin-top:5px}
+.commission-actions{display:flex;gap:7px;flex-wrap:wrap}
+.commission-btn{border:0;border-radius:11px;padding:9px 12px;font-size:12px;background:#eeeaf4;color:#685e78}
+.commission-btn.primary{background:#7564a8;color:#fff}
+.commission-categories{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.commission-filter{border:0;background:#eeeaf4;color:#746984;padding:9px 16px;border-radius:999px}
+.commission-filter.active{background:#7564a8;color:#fff}
+.commission-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.commission-card{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 5px 20px rgba(80,65,100,.05);cursor:pointer}
+.commission-card-img{width:100%;aspect-ratio:1/1;object-fit:cover;background:#eeeaf3}
+.commission-no-img{width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:#eeeaf3;color:#aaa2b1;font-size:12px}
+.commission-info{padding:13px 14px 15px}.commission-name{font-weight:700;color:#4f4857;margin-bottom:6px}.commission-meta{font-size:12px;color:#99929e;line-height:1.7}.commission-tag{display:inline-block;margin-top:7px;padding:4px 9px;border-radius:999px;background:#f0ecf7;color:#7564a8;font-size:11px}
+.commission-empty{background:#fff;border-radius:20px;padding:70px 20px;text-align:center;color:#aaa2b0;box-shadow:0 5px 20px rgba(80,65,100,.05)}
+.commission-modal{display:none;position:fixed;inset:0;background:rgba(40,35,45,.42);align-items:center;justify-content:center;padding:20px;z-index:40}
+.commission-modal.show{display:flex}.commission-box{width:min(600px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:25px;padding:26px}
+.commission-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.commission-form-item{display:flex;flex-direction:column;gap:7px}.commission-form-item.full{grid-column:1/-1}.commission-form-item label{font-size:13px;color:#77707d}.commission-form-item input,.commission-form-item select,.commission-form-item textarea{border:1px solid #e5e0e8;border-radius:12px;padding:11px;outline:none}.commission-form-item textarea{min-height:90px;resize:vertical}.commission-preview{width:130px;height:130px;object-fit:cover;border-radius:15px;margin-top:4px;display:none}.commission-modal-actions{display:flex;gap:10px;margin-top:22px}.commission-modal-actions button{border:0;border-radius:13px;padding:13px 18px}.commission-save{flex:1;background:#7564a8;color:#fff}.commission-cancel{background:#eeeaf3;color:#39343d}.commission-delete{background:#f7e7eb;color:#a55368}
+@media(max-width:800px){.commission-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.page-nav{margin-bottom:14px}.page-secret-menu{top:calc(100% + 6px)}.commission-head{align-items:flex-start;flex-direction:column}.commission-title{font-size:22px}.commission-grid{gap:12px}.commission-form-grid{grid-template-columns:1fr}.commission-form-item.full{grid-column:auto}}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <div class="page-nav" aria-label="页面切换">
+        <button type="button" class="page-tab active" id="pageTab1" onclick="switchPage(1)">我的谷子</button>
+        <button type="button" class="page-secret-toggle" id="pageSecretToggle" aria-label="展开隐藏页面" onclick="togglePagePeek()">⌄</button>
+        <div class="page-secret-menu" id="pageSecretMenu">
+            <button type="button" class="page-secret-item" id="pageTab2" onclick="switchPage(2);hidePagePeek()">约稿稿件</button>
+            <button type="button" class="page-secret-item secondary" id="pageTabAdd" onclick="toggleCommissionPage()">第二页设置</button>
+        </div>
+    </div>
+
+    <div id="page1" class="page-view active">
+    <header class="header">
+        <div>
+            <div class="logo">我的谷子 ✦</div>
+            <div class="subtitle">把喜欢的收藏整理成自己的图鉴</div>
+        </div>
+
+        <div class="header-actions">
+            <button class="tool-btn" onclick="openBulkModal()">▦ 批量添加</button>
+            <button class="tool-btn" onclick="exportGoodsBackup()">↓ 导出备份</button>
+            <button class="tool-btn" onclick="document.getElementById('importBackup').click()">↑ 导入备份</button>
+            <input id="importBackup" type="file" accept=".json,application/json" style="display:none" onchange="importGoodsBackup(event)">
+            <button type="button" class="settings-btn" onclick="openSettingsModal()">⚙ 页面底色</button>
+            <button class="add-btn" onclick="openModal()">＋ 添加谷子</button>
+        </div>
+    </header>
+
+
+    <!-- 统计 + 吃谷分类 -->
+    <section class="stats-strip">
+        <div class="stat-item">
+            <div class="stat-label">收藏数量</div>
+            <div class="stat-value" id="count">0</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">收藏款数</div>
+            <div class="stat-value" id="pieces">0</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">累计投入</div>
+            <div class="stat-value">¥<span id="total">0</span></div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">在路上</div>
+            <div class="stat-value" id="wanted">0</div>
+        </div>
+    </section>
+
+    <section class="type-chart-panel">
+        <div class="type-chart-head">
+            <div>
+                <div class="type-chart-title">吃谷分类</div>
+                <div class="type-chart-subtitle">按谷子类型统计数量</div>
+            </div>
+        </div>
+        <div id="typeBars" class="type-bars"></div>
+    </section>
+
+
+    <!-- 搜索 -->
+    <section class="toolbar">
+
+        <input
+            id="search"
+            class="search"
+            placeholder="搜索谷子、角色、作品、系列……"
+            oninput="render()"
+        >
+
+        <select id="statusFilter" class="filter" onchange="render()">
+            <option value="all">全部状态</option>
+            <option value="owned">已拥有</option>
+            <option value="wanted">已无</option>
+            <option value="shipping">在路上</option>
+        </select>
+
+    </section>
+
+
+    <!-- 分类 -->
+    <section class="categories">
+        <div class="categories-head">
+            <span>谷子分类</span>
+            <button type="button" class="manage-category-btn" onclick="openCategoryManager()">管理分类</button>
+        </div>
+        <div id="categoryButtons" class="category-buttons"></div>
+    </section>
+
+
+    <!-- 谷子 -->
+    <main id="grid" class="grid"></main>
+
+    </div><!-- /page1 -->
+
+    <div id="page2" class="page-view">
+        <section class="commission-head">
+            <div>
+                <div class="commission-title">约稿稿件</div>
+                <div class="commission-subtitle">把已经约到的稿件按关系类型整理起来</div>
+            </div>
+            <div class="commission-actions">
+                <button type="button" class="commission-btn primary" onclick="openCommissionModal()">＋ 添加稿件</button>
+                <button type="button" class="commission-btn" onclick="exportCommissionBackup()">↓ 导出约稿</button>
+                <button type="button" class="commission-btn" onclick="document.getElementById('commissionImport').click()">↑ 导入约稿</button>
+                <input id="commissionImport" type="file" accept=".json,application/json" style="display:none" onchange="importCommissionBackup(event)">
+            </div>
+        </section>
+        <div class="commission-categories">
+            <button class="commission-filter active" data-commission-cat="all" onclick="setCommissionCategory('all')">全部</button>
+            <button class="commission-filter" data-commission-cat="双人" onclick="setCommissionCategory('双人')">双人</button>
+            <button class="commission-filter" data-commission-cat="梦角单人" onclick="setCommissionCategory('梦角单人')">梦角单人</button>
+            <button class="commission-filter" data-commission-cat="我单人" onclick="setCommissionCategory('我单人')">我单人</button>
+        </div>
+        <main id="commissionGrid" class="commission-grid"></main>
+    </div>
+
+</div>
+
+
+<!-- 添加/编辑弹窗 -->
+<div id="modal" class="modal">
+
+    <div class="modal-box">
+
+        <div class="modal-title" id="modalTitle">
+            添加谷子
+        </div>
+
+        <div class="form-grid">
+
+            <div class="form-item full">
+                <label>图片</label>
+
+                <input
+                    type="file"
+                    accept="image/*"
+                    onchange="previewImage(event)"
+                >
+
+                <img id="preview" class="image-preview">
+            </div>
+
+
+            <div class="form-item full">
+                <label>谷子名称</label>
+                <input id="name" placeholder="例如：叶瑄58mm吧唧">
+            </div>
+
+
+            <div class="form-item">
+                <label>作品 / IP</label>
+                <input id="work" placeholder="时空中的绘旅人">
+            </div>
+
+
+            <div class="form-item">
+                <label>角色</label>
+                <input id="character" placeholder="叶瑄">
+            </div>
+
+
+            <div class="form-item">
+                <label>类型</label>
+
+                <select id="type"></select>
+
+            </div>
+
+
+            <div class="form-item">
+                <label>系列</label>
+                <input id="series" placeholder="例如：白色情人节">
+            </div>
+
+
+            <div class="form-item">
+                <label>尺寸</label>
+                <input id="size" placeholder="例如：58mm">
+            </div>
+
+
+            <div class="form-item">
+                <label>数量</label>
+                <input id="quantity" type="number" min="1" value="1">
+            </div>
+
+
+            <div class="form-item">
+                <label>单价（元）</label>
+                <input id="price" type="number" min="0" step="0.01">
+            </div>
+
+
+            <div class="form-item">
+                <label>购买日期</label>
+                <input id="date" type="date">
+            </div>
+
+
+            <div class="form-item">
+                <label>购买渠道</label>
+                <select id="shop"><option value="official">官方</option><option value="unofficial">非官方</option></select>
+            </div>
+
+
+            <div class="form-item">
+                <label>状态</label>
+
+                <select id="status">
+                    <option value="owned">已拥有</option>
+                    <option value="wanted">已无</option>
+                    <option value="shipping">在路上</option>
+                </select>
+
+            </div>
+
+
+            <div class="form-item full">
+                <label>备注</label>
+
+                <textarea
+                    id="memo"
+                    placeholder="版本、特典、瑕疵、来源等……"
+                ></textarea>
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-actions">
+
+            <button class="cancel" onclick="closeModal()">
+                取消
+                </button>
+
+            <button
+                id="deleteBtn"
+                class="delete"
+                style="display:none"
+                onclick="deleteItem()"
+            >
+                删除
+            </button>
+
+            <button class="save" onclick="saveItem()">
+                保存
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- 批量添加 -->
+<div id="bulkModal" class="bulk-modal">
+  <div class="bulk-box">
+    <div class="bulk-title">批量添加谷子</div>
+    <div class="bulk-help">
+      每一行代表一款谷子。可以直接像表格一样填写，也可以把 Excel / WPS / Google 表格中的多行内容复制后粘贴。
+      图片不通过表格批量导入，保存后可以再点开单件谷子补图片。
+    </div>
+    <div class="bulk-note">
+      表格列顺序：谷子名称｜作品/IP｜角色｜类型｜系列｜尺寸｜数量｜单价（元）｜购买日期｜购买渠道｜状态｜备注
+    </div>
+    <div id="bulkTableWrap" class="bulk-table-wrap"></div>
+    <textarea id="bulkPasteArea" class="paste-area" placeholder="把 Excel / WPS 中复制的表格直接粘贴到这里……"></textarea>
+    <div class="bulk-actions">
+      <button class="bulk-secondary" onclick="addBulkRow()">＋ 添加一行</button>
+      <button class="bulk-secondary" onclick="addBulkRows(10)">＋ 添加10行</button>
+      <button class="bulk-secondary" onclick="togglePasteArea()">📋 粘贴表格</button>
+      <button class="bulk-secondary" onclick="downloadCSVTemplate()">↓ CSV模板</button>
+      <button class="bulk-secondary" onclick="document.getElementById('bulkCSV').click()">↑ 导入CSV</button>
+      <input id="bulkCSV" type="file" accept=".csv,.txt" style="display:none" onchange="importBulkCSV(event)">
+      <button class="bulk-primary" onclick="saveBulkItems()">保存全部</button>
+      <button class="bulk-secondary" onclick="closeBulkModal()">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 第二页：约稿编辑弹窗 -->
+<div id="commissionModal" class="commission-modal">
+  <div class="commission-box">
+    <div class="modal-title" id="commissionModalTitle">添加稿件</div>
+    <div class="commission-form-grid">
+      <div class="commission-form-item full">
+        <label>稿件图片</label>
+        <input id="commissionImageFile" type="file" accept="image/*" onchange="previewCommissionImage(event)">
+        <img id="commissionPreview" class="commission-preview">
+      </div>
+      <div class="commission-form-item full">
+        <label>稿件状态 / 分类</label>
+        <input id="commissionStatusLabel" placeholder="可自由填写，例如：双人 / 梦角单人 / 我单人 / 已完成">
+      </div>
+      <div class="commission-form-item">
+        <label>画师</label>
+        <input id="commissionArtist" placeholder="画师昵称">
+      </div>
+      <div class="commission-form-item">
+        <label>价格（元）</label>
+        <input id="commissionPrice" type="number" min="0" step="0.01" placeholder="0">
+      </div>
+    </div>
+    <div class="commission-modal-actions">
+      <button type="button" class="commission-cancel" onclick="closeCommissionModal()">取消</button>
+      <button type="button" id="commissionDeleteBtn" class="commission-delete" style="display:none" onclick="deleteCommission()">删除</button>
+      <button type="button" class="commission-save" onclick="saveCommission()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+let items = JSON.parse(localStorage.getItem("goodsCollection") || "[]");
+
+let currentType = "all";
+
+let editingId = null;
+
+let currentImage = "";
+let imageReadyPromise = Promise.resolve();
+let imageLoadToken = 0;
+
+/* 图片独立放进 IndexedDB，避免手机浏览器 localStorage 因图片过大而保存失败。 */
+const IMAGE_DB_NAME="woDeGuZiImageDB", IMAGE_DB_VERSION=1, IMAGE_STORE="images";
+let imageDBPromise=null;
+function openImageDB(){
+  if(imageDBPromise)return imageDBPromise;
+  imageDBPromise=new Promise((resolve,reject)=>{
+    if(!window.indexedDB){reject(new Error("IndexedDB 不可用"));return;}
+    const req=indexedDB.open(IMAGE_DB_NAME,IMAGE_DB_VERSION);
+    req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains(IMAGE_STORE))db.createObjectStore(IMAGE_STORE);};
+    req.onsuccess=()=>resolve(req.result); req.onerror=()=>reject(req.error||new Error("图片数据库打开失败"));
+  }); return imageDBPromise;
+}
+async function putImage(dataUrl,key){
+  const db=await openImageDB(); const blob=await (await fetch(dataUrl)).blob();
+  return new Promise((resolve,reject)=>{const tx=db.transaction(IMAGE_STORE,"readwrite");tx.objectStore(IMAGE_STORE).put(blob,key);tx.oncomplete=()=>resolve(key);tx.onerror=()=>reject(tx.error||new Error("图片保存失败"));});
+}
+async function getImage(key){
+  if(!key)return ""; const db=await openImageDB();
+  return new Promise((resolve,reject)=>{const req=db.transaction(IMAGE_STORE,"readonly").objectStore(IMAGE_STORE).get(key);req.onsuccess=()=>{if(!req.result){resolve("");return;}resolve(URL.createObjectURL(req.result));};req.onerror=()=>reject(req.error||new Error("图片读取失败"));});
+}
+async function deleteImage(key){
+  if(!key)return; try{const db=await openImageDB();await new Promise((resolve,reject)=>{const tx=db.transaction(IMAGE_STORE,"readwrite");tx.objectStore(IMAGE_STORE).delete(key);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});}catch(e){console.warn(e);}
+}
+async function migrateLegacyImages(){
+  let changed=false;
+  for(const item of items){if(item.image && /^data:image\//.test(item.image)){try{const key="img_"+String(item.id);await putImage(item.image,key);item.imageKey=key;delete item.image;changed=true;}catch(e){console.warn("旧图片迁移失败",e);}}}
+  if(changed)saveData();
+}
+
+
+
+/* 保存数据 */
+
+function saveData() {
+
+    try {
+        localStorage.setItem(
+            "goodsCollection",
+            JSON.stringify(items)
+        );
+        return true;
+    } catch (err) {
+        console.error(err);
+        if (err && (err.name === "QuotaExceededError" || err.code === 22)) {
+            alert("保存失败：浏览器本地存储空间不足。图片已经自动压缩，请删除不需要的旧图片后再保存。");
+        } else {
+            alert("保存失败，请刷新页面后再试。");
+        }
+        return false;
+    }
+
+}
+
+
+/* 打开弹窗 */
+
+function openModal(id = null) {
+
+    editingId = id;
+
+    currentImage = "";
+
+    document
+        .getElementById("modal")
+        .classList.add("show");
+
+    document.getElementById("modalTitle").textContent =
+        id ? "编辑谷子" : "添加谷子";
+
+    document.getElementById("deleteBtn").style.display =
+        id ? "block" : "none";
+
+
+    if (id) {
+
+        const item =
+            items.find(x => x.id === id);
+
+        if (!item) return;
+
+
+        document.getElementById("name").value =
+            item.name || "";
+
+        document.getElementById("work").value =
+            item.work || "";
+
+        document.getElementById("character").value =
+            item.character || "";
+
+        syncTypeSelect(item.type);
+        document.getElementById("type").value =
+            goodsTypes.includes(item.type) ? item.type : (goodsTypes[0] || "");
+
+        document.getElementById("series").value =
+            item.series || "";
+
+        document.getElementById("size").value =
+            item.size || "";
+
+        document.getElementById("quantity").value =
+            item.quantity || 1;
+
+        document.getElementById("price").value =
+            item.price || "";
+
+        document.getElementById("date").value =
+            item.date || "";
+
+        document.getElementById("shop").value =
+            normalizeShop(item.shop);
+
+        document.getElementById("status").value =
+            item.status || "owned";
+
+        document.getElementById("memo").value =
+            item.memo || "";
+
+
+        currentImage = "";
+        const preview = document.getElementById("preview");
+        preview.style.display = "none";
+        if(item.imageKey){
+            getImage(item.imageKey).then(src=>{if(src){currentImage=src;preview.src=src;preview.style.display="block";}}).catch(console.warn);
+        } else if(item.image){
+            currentImage=item.image; preview.src=currentImage; preview.style.display="block";
+        }
+
+    } else {
+
+        clearForm();
+
+    }
+
+}
+
+
+/* 清空表单 */
+
+function clearForm() {
+
+    imageLoadToken++;
+    imageReadyPromise=Promise.resolve();
+    document
+        .querySelectorAll(".modal-box input, .modal-box textarea")
+        .forEach(el => {
+
+            if (el.type !== "file") {
+
+                el.value = "";
+
+            }
+
+        });
+
+
+    document.getElementById("quantity").value = 1;
+
+    syncTypeSelect();
+
+    document.getElementById("status").value = "owned";
+
+    document.getElementById("preview").style.display =
+        "none";
+
+}
+
+
+/* 关闭 */
+
+function closeModal() {
+
+    document
+        .getElementById("modal")
+        .classList.remove("show");
+
+}
+
+
+/* 图片 */
+
+async function previewImage(event) {
+
+    const file = event.target.files[0];
+    if (!file) return;
+    const token=++imageLoadToken;
+
+    imageReadyPromise=(async()=>{
+    try {
+        // 图片先压缩再写入 localStorage，避免手机相册原图过大导致“点击保存无反应”。
+        const dataUrl = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onerror = () => reject(new Error("读取图片失败"));
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(file);
+        });
+
+        const img = new Image();
+        await new Promise((resolve, reject) => {
+            img.onload = resolve;
+            img.onerror = () => reject(new Error("图片加载失败"));
+            img.src = dataUrl;
+        });
+
+        const maxSide = 1200;
+        const ow = img.naturalWidth || img.width;
+        const oh = img.naturalHeight || img.height;
+        const scale = Math.min(1, maxSide / Math.max(ow, oh));
+        const w = Math.max(1, Math.round(ow * scale));
+        const h = Math.max(1, Math.round(oh * scale));
+
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, w, h);
+
+        const nextImage = canvas.toDataURL("image/jpeg", 0.76);
+        if(token===imageLoadToken){
+            currentImage = nextImage;
+            const preview = document.getElementById("preview");
+            preview.src = currentImage;
+            preview.style.display = "block";
+        }
+
+    } catch (err) {
+        console.error(err);
+        alert("图片读取失败，请换一张图片再试。");
+        throw err;
+    }
+    })();
+    try{ await imageReadyPromise; }catch(e){}
+
+}
+
+
+/* 保存 */
+
+async function saveItem() {
+    const name=document.getElementById("name").value.trim();
+    if(!name){alert("请填写谷子名称");return;}
+    const oldItems=items.slice();
+    const oldItem=editingId?items.find(x=>x.id===editingId):null;
+    let imageKey=oldItem?.imageKey||"";
+    try{
+        await imageReadyPromise;
+        if(currentImage && /^data:image\//.test(currentImage)){
+            imageKey=imageKey||("img_"+String(editingId||Date.now())+"_"+Math.random().toString(36).slice(2));
+            await putImage(currentImage,imageKey);
+        }
+        const item={
+            id:editingId||Date.now(), name,
+            work:document.getElementById("work").value.trim(),
+            character:document.getElementById("character").value.trim(),
+            type:document.getElementById("type").value,
+            series:document.getElementById("series").value.trim(), size:document.getElementById("size").value.trim(),
+            quantity:Number(document.getElementById("quantity").value)||1,
+            price:Number(document.getElementById("price").value)||0,
+            date:document.getElementById("date").value, shop:document.getElementById("shop").value,
+            status:document.getElementById("status").value, memo:document.getElementById("memo").value.trim(),
+            imageKey:imageKey||""
+        };
+        if(editingId){const index=items.findIndex(x=>x.id===editingId);if(index<0)return;items[index]=item;}else items.unshift(item);
+        if(!saveData()){items=oldItems;return;}
+        closeModal(); render(); alert("保存成功");
+    }catch(err){console.error(err);items=oldItems;alert("保存失败：图片没有保存成功。请确认浏览器允许网站存储数据后再试。");}
+}
+
+
+/* 删除 */
+
+async function deleteItem() {
+    if(!editingId)return;
+    if(!confirm("确定删除这件谷子吗？"))return;
+    const target=items.find(x=>x.id===editingId);
+    items=items.filter(x=>x.id!==editingId);
+    if(!saveData())return;
+    if(target?.imageKey)await deleteImage(target.imageKey);
+    closeModal(); render();
+}
+
+
+/* 分类 */
+
+function setType(type, button) {
+
+    currentType = type;
+
+
+    document
+        .querySelectorAll(".category")
+        .forEach(x =>
+            x.classList.remove("active")
+        );
+
+
+    button.classList.add("active");
+
+    render();
+
+}
+
+
+/* 渲染 */
+
+function render() {
+
+    const keyword =
+        document
+            .getElementById("search")
+            .value
+            .toLowerCase();
+
+    const status =
+        document
+            .getElementById("statusFilter")
+            .value;
+
+
+    let list =
+        items.filter(item => {
+
+            const text = (
+
+                item.name +
+
+                item.work +
+
+                item.character +
+
+                item.series +
+
+                item.type
+
+            ).toLowerCase();
+
+
+            const matchKeyword =
+                text.includes(keyword);
+
+
+            const matchType =
+                currentType === "all" ||
+                item.type === currentType;
+
+
+            const matchStatus =
+                status === "all" ||
+                item.status === status;
+
+
+            return (
+                matchKeyword &&
+                matchType &&
+                matchStatus
+            );
+
+        });
+
+
+    const grid =
+        document.getElementById("grid");
+
+
+    if (!list.length) {
+
+        grid.innerHTML = `
+
+            <div style="
+                grid-column:1/-1;
+                background:white;
+                border-radius:20px;
+                padding:70px 20px;
+                text-align:center;
+                color:#9b949f;
+            ">
+
+                <div style="font-size:45px">
+                    ✦
+                </div>
+
+                <div style="margin-top:12px">
+                    暂时没有找到谷子
+                </div>
+
+            </div>
+
+        `;
+
+    } else {
+
+        grid.innerHTML =
+            list.map(createCard).join("");
+
+    }
+
+
+    updateStats();
+    loadCardImages();
+
+}
+
+async function loadCardImages(){
+  const imgs=[...document.querySelectorAll("img[data-image-key]")];
+  for(const img of imgs){
+    try{const src=await getImage(img.dataset.imageKey);const ph=img.nextElementSibling;if(src){img.src=src;img.style.display="block";if(ph)ph.remove();}else{img.remove();if(ph)ph.textContent="暂无图片";}}catch(e){img.remove();const ph=img.nextElementSibling;if(ph)ph.textContent="暂无图片";}
+  }
+}
+
+
+/* 卡片 */
+
+function createCard(item) {
+
+    const image=item.imageKey
+        ? `<img class="item-img" data-image-key="${escapeHtml(item.imageKey)}" alt="" style="display:none"><div class="no-img image-loading">加载中…</div>`
+        : item.image
+          ? `<img class="item-img" src="${item.image}" alt="">`
+          : `<div class="no-img">暂无图片</div>`;
+
+
+    const statusText = {
+
+        owned: "已拥有",
+
+        wanted: "已无",
+
+        shipping: "在路上"
+
+    }[item.status];
+
+
+    return `
+
+        <article
+            class="item"
+            onclick="openModal(${item.id})"
+        >
+
+            ${image}
+
+            <div class="item-info">
+
+                <div class="item-name">
+                    ${escapeHtml(item.name)}
+                </div>
+
+                <div class="item-meta">
+
+                    ${escapeHtml(item.work || "")}
+
+                    ${item.character
+                        ? " · " + escapeHtml(item.character)
+                        : ""
+                    }
+
+                    <br>
+
+                    ${item.series
+                        ? escapeHtml(item.series) + " · "
+                        : ""
+                    }
+
+                    ${item.size
+                        ? escapeHtml(item.size)
+                        : ""
+                    }
+
+                    <br>
+
+                    ×${item.quantity}
+
+                    ${item.price
+                        ? " · ¥" +
+                          (item.price * item.quantity).toFixed(2)
+                        : ""
+                    }
+
+                </div>
+
+                <span class="tag">
+                    ${statusText}
+                </span>
+
+            </div>
+
+        </article>
+
+    `;
+
+}
+
+
+/* 防止 HTML 注入 */
+
+function escapeHtml(text) {
+
+    return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+/* 统计 */
+
+function updateStats() {
+    let count = items.length;
+    let pieces = 0;
+    let total = 0;
+    let wanted = 0;
+    const typeCounts = {};
+
+    items.forEach(item => {
+        const quantity = Number(item.quantity) || 1;
+        const price = Number(item.price) || 0;
+        pieces += quantity;
+        total += quantity * price;
+        if (item.status === "shipping") wanted++;
+        const type = item.type || "其他";
+        typeCounts[type] = (typeCounts[type] || 0) + quantity;
+    });
+
+    document.getElementById("count").textContent = count;
+    document.getElementById("pieces").textContent = pieces;
+    const mini = document.getElementById("piecesMiniCount"); if(mini) mini.textContent = pieces;
+    document.getElementById("total").textContent = total.toFixed(2);
+    document.getElementById("wanted").textContent = wanted;
+
+    const box = document.getElementById("typeBars");
+    if (!box) return;
+    const entries = Object.entries(typeCounts).sort((a,b)=>b[1]-a[1]);
+    if (!entries.length) {
+        box.innerHTML = '<div class="type-chart-empty">还没有添加谷子</div>';
+        return;
+    }
+    const max = Math.max(...entries.map(x=>x[1]), 1);
+    box.innerHTML = entries.map(([type, value]) => {
+        const pct = Math.max(4, Math.round(value / max * 100));
+        return `<div class="type-bar-row">
+            <div class="type-bar-name" title="${escapeHtml(type)}">${escapeHtml(type)}</div>
+            <div class="type-bar-track"><div class="type-bar-fill" style="width:${pct}%"></div></div>
+            <div class="type-bar-count">${value}</div>
+        </div>`;
+    }).join('');
+}
+
+
+/* 初始化 */
+
+render();
+
+</script>
+
+
+<div id="settingsModal" class="settings-modal">
+  <div class="settings-box">
+    <div class="settings-title">页面设置</div>
+    <div class="settings-row"><span>页面底色</span><input id="bgColor" type="color" value="#f7f4fa"></div>
+    <div class="settings-actions">
+      <button class="settings-cancel" type="button" onclick="resetBackground()">恢复默认</button>
+      <button class="settings-cancel" type="button" onclick="closeSettingsModal()">取消</button>
+      <button class="settings-save" type="button" onclick="saveBackground()">保存</button>
+    </div>
+  </div>
+</div>
+<div id="categoryModal" class="category-modal">
+  <div class="category-box">
+    <div class="category-title">管理谷子分类</div>
+    <div style="color:#9a939f;font-size:13px;line-height:1.7;margin-bottom:14px">可以修改、删除、新增分类。修改分类名称后，已有谷子也会同步更新类型。</div>
+    <div id="categoryList" class="category-list"></div>
+    <div class="category-add-row"><input id="newCategoryInput" placeholder="输入新分类名称"><button type="button" onclick="addCategoryDraft()">＋ 添加</button></div>
+    <div class="category-actions"><button class="category-cancel" type="button" onclick="closeCategoryManager()">取消</button><button class="category-save" type="button" onclick="saveCategoryManager()">保存分类</button></div>
+  </div>
+</div>
+<footer class="author-footer">我超甜检测 2026</footer>
+<script>
+const CUSTOM_GOODS_TYPES_KEY="goodsTypes";
+const DEFAULT_GOODS_TYPES=["吧唧","亚克力","纸片","其他"];
+let goodsTypes=JSON.parse(localStorage.getItem(CUSTOM_GOODS_TYPES_KEY)||"null")||[...DEFAULT_GOODS_TYPES];
+let categoryDraft=[];
+function saveGoodsTypes(){localStorage.setItem(CUSTOM_GOODS_TYPES_KEY,JSON.stringify(goodsTypes));}
+function renderCategories(){
+ const box=document.getElementById("categoryButtons");if(!box)return;box.innerHTML="";
+ const all=document.createElement("button");all.type="button";all.className="category"+(currentType==="all"?" active":"");all.textContent="全部";all.onclick=()=>setType("all",all);box.appendChild(all);
+ goodsTypes.forEach(t=>{const b=document.createElement("button");b.type="button";b.className="category"+(currentType===t?" active":"");b.textContent=t;b.onclick=()=>setType(t,b);box.appendChild(b);});
+}
+function syncTypeSelect(selected){const el=document.getElementById("type");if(!el)return;const old=selected||el.value;el.innerHTML="";goodsTypes.forEach(t=>{const o=document.createElement("option");o.value=t;o.textContent=t;el.appendChild(o)});el.value=goodsTypes.includes(old)?old:(goodsTypes[0]||"");}
+function openCategoryManager(){categoryDraft=[...goodsTypes];renderCategoryManager();document.getElementById("categoryModal").classList.add("show")}
+function closeCategoryManager(){document.getElementById("categoryModal").classList.remove("show")}
+function renderCategoryManager(){const list=document.getElementById("categoryList");if(!list)return;list.innerHTML="";categoryDraft.forEach((t,i)=>{const row=document.createElement("div");row.className="category-edit-row";const inp=document.createElement("input");inp.value=t;inp.oninput=()=>categoryDraft[i]=inp.value;const del=document.createElement("button");del.type="button";del.className="category-remove";del.textContent="×";del.onclick=()=>{categoryDraft.splice(i,1);renderCategoryManager()};row.append(inp,del);list.appendChild(row)})}
+function addCategoryDraft(){const inp=document.getElementById("newCategoryInput"),v=inp.value.trim();if(!v)return;if(categoryDraft.includes(v)){alert("这个分类已经存在");return}categoryDraft.push(v);inp.value="";renderCategoryManager()}
+function saveCategoryManager(){
+ const oldTypes=[...goodsTypes];
+ const next=[...new Set(categoryDraft.map(x=>String(x).trim()).filter(Boolean))];
+ // Rename existing types in item data according to row position.
+ if(typeof items!=="undefined") items=items.map(item=>{const idx=oldTypes.indexOf(item.type);return idx>=0&&idx<next.length?{...item,type:next[idx]}:item});
+ goodsTypes=next;saveGoodsTypes();syncTypeSelect();renderCategories();closeCategoryManager();
+ if(typeof saveData==="function")saveData();if(typeof render==="function")render();
+}
+function previewBackground(c){document.documentElement.style.setProperty("--page-bg",c)}
+function openSettingsModal(){const c=localStorage.getItem("pageBackground")||"#f7f4fa";document.getElementById("bgColor").value=c;previewBackground(c);document.getElementById("settingsModal").classList.add("show")}
+function closeSettingsModal(){document.getElementById("settingsModal").classList.remove("show")}
+function saveBackground(){const c=document.getElementById("bgColor").value;localStorage.setItem("pageBackground",c);previewBackground(c);closeSettingsModal()}
+function resetBackground(){const c="#f7f4fa";localStorage.removeItem("pageBackground");document.getElementById("bgColor").value=c;previewBackground(c)}
+
+/* ===== 批量添加 / CSV / 备份 ===== */
+const BULK_COLS=["name","work","character","type","series","size","quantity","price","date","shop","status","memo"];
+function normalizeShop(v){const s=String(v??"").trim();if(s==="official"||s==="官方")return "official";if(s==="unofficial"||s==="非官方")return "unofficial";if(!s)return "official";return /官方/.test(s)&&!/非官方/.test(s)?"official":"unofficial";}
+const BULK_LABELS=["谷子名称","作品/IP","角色","类型","系列","尺寸","数量","单价（元）","购买日期","购买渠道","状态","备注"];
+let bulkRows=[];
+function downloadBlob(blob,name){
+  const url=URL.createObjectURL(blob); const a=document.createElement("a");
+  a.href=url; a.download=name; a.style.display="none"; document.body.appendChild(a);
+  a.click(); setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},1000);
+}
+function openBulkModal(){
+  const m=document.getElementById("bulkModal"); if(!m)return;
+  m.classList.add("show"); bulkRows=[blankBulkRow()];
+  const paste=document.getElementById("bulkPasteArea"); if(paste)paste.style.display="none";
+  renderBulkTable();
+}
+function closeBulkModal(){const m=document.getElementById("bulkModal");if(m)m.classList.remove("show")}
+function blankBulkRow(){return {name:"",work:"",character:"",type:goodsTypes[0]||"",series:"",size:"",quantity:1,price:"",date:"",shop:"",status:"owned",memo:""}}
+function addBulkRow(){bulkRows.push(blankBulkRow());renderBulkTable()}
+function addBulkRows(n){for(let i=0;i<n;i++)bulkRows.push(blankBulkRow());renderBulkTable()}
+function escAttr(v){return String(v??"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function renderBulkTable(){
+  const wrap=document.getElementById("bulkTableWrap");if(!wrap)return;
+  let h="<table class='bulk-table'><thead><tr><th>#</th>";
+  BULK_LABELS.forEach(x=>h+="<th>"+escapeHtml(x)+"</th>"); h+="<th>操作</th></tr></thead><tbody>";
+  bulkRows.forEach((r,i)=>{
+    h+="<tr><td>"+(i+1)+"</td>";
+    BULK_COLS.forEach(k=>{
+      if(k==="type") h+="<td><select onchange=\"bulkRows["+i+"].type=this.value\">"+goodsTypes.map(t=>"<option value='"+escAttr(t)+"' "+(t===r.type?"selected":"")+">"+escapeHtml(t)+"</option>").join("")+"</select></td>";
+      else if(k==="shop") { const sv=normalizeShop(r.shop); h+="<td><select onchange=\"bulkRows["+i+"].shop=this.value\"><option value='official' "+(sv==="official"?"selected":"")+">官方</option><option value='unofficial' "+(sv==="unofficial"?"selected":"")+">非官方</option></select></td>"; }
+      else if(k==="status") h+="<td><select onchange=\"bulkRows["+i+"].status=this.value\"><option value='owned' "+(r.status==="owned"?"selected":"")+">已拥有</option><option value='wanted' "+(r.status==="wanted"?"selected":"")+">已无</option><option value='shipping' "+(r.status==="shipping"?"selected":"")+">在路上</option></select></td>";
+      else {const type=k==="quantity"?"number":k==="price"?"number":k==="date"?"date":"text"; const step=k==="price"?" step='0.01'":""; const min=k==="quantity"?" min='1'":""; h+="<td><input type='"+type+"' value='"+escAttr(r[k])+"'"+step+min+" onchange=\"bulkRows["+i+"][\'"+k+"\']=this.value\"></td>";}
+    });
+    h+="<td><button type='button' class='bulk-secondary' onclick='removeBulkRow("+i+")'>删除</button></td></tr>";
+  });
+  h+="</tbody></table>"; wrap.innerHTML=h;
+}
+function removeBulkRow(i){bulkRows.splice(i,1);if(!bulkRows.length)bulkRows=[blankBulkRow()];renderBulkTable()}
+function togglePasteArea(){const a=document.getElementById("bulkPasteArea");if(!a)return;a.style.display=a.style.display==="block"?"none":"block";if(a.style.display==="block")a.focus()}
+function parseTSV(text){return text.trim().split(/\r?\n/).map(line=>line.split("\t"))}
+function rowFromArray(a){
+  const r=blankBulkRow(); BULK_COLS.forEach((k,i)=>{if(a[i]!==undefined)r[k]=String(a[i]).trim()});
+  r.quantity=Number(r.quantity)||1; r.price=Number(r.price)||0;
+  if(!goodsTypes.includes(r.type))r.type=goodsTypes[0]||"";
+  const sm={"已拥有":"owned","已无":"wanted","想要":"wanted","在路上":"shipping"}; if(!["owned","wanted","shipping"].includes(r.status))r.status=sm[r.status]||"owned";
+  return r;
+}
+function applyPastedTable(){
+  const a=document.getElementById("bulkPasteArea"),text=a&&a.value.trim();if(!text)return;
+  const rows=parseTSV(text),first=rows[0].map(x=>x.trim()),data=(first.includes("谷子名称")||first.includes("作品/IP"))?rows.slice(1):rows;
+  bulkRows=data.filter(r=>r.some(x=>x.trim()!=="")).map(rowFromArray); if(!bulkRows.length)bulkRows=[blankBulkRow()]; renderBulkTable(); a.style.display="none";
+}
+function downloadCSVTemplate(){const header=BULK_LABELS.join(",");downloadBlob(new Blob(["\uFEFF"+header+"\n"],{type:"text/csv;charset=utf-8"}),"我的谷子_批量模板.csv")}
+function parseCSV(text){
+  const rows=[];let row=[],cell="",q=false;
+  for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1];if(c==='"'&&q&&n==='"'){cell+='"';i++;continue}if(c==='"'){q=!q;continue}if(c===','&&!q){row.push(cell);cell="";continue}if((c==='\n'||c==='\r')&&!q){if(c==='\r'&&n==='\n')i++;row.push(cell);cell="";if(row.some(x=>x!==""))rows.push(row);row=[];continue}cell+=c}
+  if(cell!==""||row.length){row.push(cell);if(row.some(x=>x!==""))rows.push(row)} return rows;
+}
+function importBulkCSV(e){
+  const f=e.target.files[0];e.target.value="";if(!f)return;const r=new FileReader();r.onload=()=>{try{const rows=parseCSV(String(r.result).replace(/^\uFEFF/,""));if(!rows.length)throw new Error();const first=rows[0].map(x=>x.trim()),data=first.includes("谷子名称")?rows.slice(1):rows;bulkRows=data.filter(x=>x.some(v=>v.trim()!=="")).map(rowFromArray);if(!bulkRows.length)bulkRows=[blankBulkRow()];renderBulkTable()}catch(err){console.error(err);alert("CSV读取失败，请检查文件格式。")}};r.readAsText(f,"utf-8")
+}
+function saveBulkItems(){
+  const valid=bulkRows.filter(r=>String(r.name||"").trim()); if(!valid.length){alert("请至少填写一行谷子名称");return}
+  const base=Date.now(); valid.forEach((r,i)=>items.unshift({...r,id:base+i+Math.random()})); saveData(); closeBulkModal(); render(); alert("已成功添加 "+valid.length+" 款谷子。");
+}
+
+/* ===== 导出 / 导入备份 ===== */
+function exportGoodsBackup(){
+  const data={app:"我的谷子",version:2,exportedAt:new Date().toISOString(),items,goodsTypes,pageBackground:localStorage.getItem("pageBackground")||"#f7f4fa",piecesStatImage:localStorage.getItem("piecesStatImage")||"",commissionItems};
+  downloadBlob(new Blob([JSON.stringify(data,null,2)],{type:"application/json;charset=utf-8"}),"我的谷子_备份_"+new Date().toISOString().slice(0,10)+".json");
+}
+function importGoodsBackup(e){
+  const f=e.target.files[0];e.target.value="";if(!f)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result),incoming=Array.isArray(o)?o:o.items;if(!Array.isArray(incoming))throw new Error("items missing");if(!confirm("导入备份会覆盖当前谷子数据，确定继续吗？"))return;
+    if(Array.isArray(o.goodsTypes)&&o.goodsTypes.length){goodsTypes=[...new Set(o.goodsTypes.map(x=>String(x).trim()).filter(Boolean))];saveGoodsTypes()}
+    items=incoming.map(x=>({...x,id:x.id??Date.now()+Math.random(),quantity:Number(x.quantity)||1,price:Number(x.price)||0,type:goodsTypes.includes(x.type)?x.type:(goodsTypes[0]||"")}));saveData();
+    if(typeof o.pageBackground==="string"&&o.pageBackground){localStorage.setItem("pageBackground",o.pageBackground);previewBackground(o.pageBackground)}
+    if(typeof o.piecesStatImage==="string"){if(o.piecesStatImage)localStorage.setItem("piecesStatImage",o.piecesStatImage);else localStorage.removeItem("piecesStatImage")}
+    if(Array.isArray(o.commissionItems)){commissionItems=o.commissionItems.map(x=>({...x,id:x.id??Date.now()+Math.random()}));saveCommissionData()}
+    renderCategories();syncTypeSelect();render();loadPiecesImage();renderCommission();alert("导入成功，共 "+items.length+" 款谷子。");
+  }catch(err){console.error(err);alert("导入失败：备份文件格式不正确。")}};r.readAsText(f,"utf-8")
+}
+
+/* ===== 收藏款数自定义图片 ===== */
+async function savePiecesImage(e){
+  const f=e.target.files[0]; e.target.value=""; if(!f)return;
+  if(!f.type.startsWith("image/")){alert("请选择图片文件。");return;}
+  try{
+    const dataUrl=await new Promise((resolve,reject)=>{
+      const r=new FileReader(); r.onerror=()=>reject(new Error("读取图片失败"));
+      r.onload=()=>resolve(r.result); r.readAsDataURL(f);
+    });
+    const img=new Image();
+    await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=()=>reject(new Error("图片加载失败"));img.src=dataUrl});
+    // 压缩图片后再保存，避免手机照片过大导致 localStorage 超出容量而完全不显示。
+    const maxSide=1000;
+    const scale=Math.min(1,maxSide/Math.max(img.naturalWidth||img.width,img.naturalHeight||img.height));
+    const w=Math.max(1,Math.round((img.naturalWidth||img.width)*scale));
+    const h=Math.max(1,Math.round((img.naturalHeight||img.height)*scale));
+    const canvas=document.createElement("canvas"); canvas.width=w; canvas.height=h;
+    const ctx=canvas.getContext("2d"); ctx.drawImage(img,0,0,w,h);
+    const compressed=canvas.toDataURL("image/jpeg",0.78);
+    try{localStorage.setItem("piecesStatImage",compressed)}
+    catch(err){
+      // 若浏览器仍然限制容量，使用更小版本再尝试一次。
+      const smallCanvas=document.createElement("canvas");
+      const sw=Math.max(1,Math.round(w*0.55)), sh=Math.max(1,Math.round(h*0.55));
+      smallCanvas.width=sw; smallCanvas.height=sh;
+      smallCanvas.getContext("2d").drawImage(img,0,0,sw,sh);
+      const smaller=smallCanvas.toDataURL("image/jpeg",0.62);
+      localStorage.setItem("piecesStatImage",smaller);
+    }
+    loadPiecesImage();
+  }catch(err){console.error(err);alert("图片保存失败，可能是浏览器存储空间不足，请换一张较小的图片再试。") }
+}
+function loadPiecesImage(){const src=localStorage.getItem("piecesStatImage")||"",img=document.getElementById("piecesImage"),ph=document.getElementById("piecesImagePlaceholder");if(!img||!ph)return;if(src){img.onload=()=>{img.style.display="block";ph.style.display="none"};img.onerror=()=>{img.style.display="none";ph.style.display="flex"};img.src=src}else{img.removeAttribute("src");img.style.display="none";ph.style.display="flex"}}
+function removePiecesImage(){localStorage.removeItem("piecesStatImage");loadPiecesImage()}
+
+document.addEventListener("paste",e=>{const a=document.getElementById("bulkPasteArea"),m=document.getElementById("bulkModal");if(a&&m&&m.classList.contains("show")&&document.activeElement===a)setTimeout(applyPastedTable,0)});
+
+/* ===== 第二页：约稿稿件 ===== */
+let commissionItems=JSON.parse(localStorage.getItem("commissionCollection")||"[]");
+let currentCommissionCategory="all";
+let editingCommissionId=null;
+let currentCommissionImage="";
+function saveCommissionData(){try{localStorage.setItem("commissionCollection",JSON.stringify(commissionItems));return true}catch(e){console.error(e);alert("约稿保存失败，请清理浏览器空间后再试。");return false}}
+function switchPage(n){
+  const p1=document.getElementById("page1"),p2=document.getElementById("page2"),t1=document.getElementById("pageTab1"),t2=document.getElementById("pageTab2");
+  if(n===2&&!localStorage.getItem("commissionPageEnabled")){localStorage.setItem("commissionPageEnabled","1")}
+  p1.classList.toggle("active",n===1);p2.classList.toggle("active",n===2);t1.classList.toggle("active",n===1);t2.classList.toggle("active",n===2);
+  if(n===2)renderCommission();
+  hidePagePeek();
+}
+function togglePagePeek(){document.getElementById("pageSecretMenu")?.classList.toggle("show")}
+function hidePagePeek(){document.getElementById("pageSecretMenu")?.classList.remove("show")}
+function toggleCommissionPage(){
+  const enabled=localStorage.getItem("commissionPageEnabled")==="1";
+  if(enabled){if(confirm("关闭第二页后，约稿数据仍会保留。确定隐藏第二页吗？")){localStorage.removeItem("commissionPageEnabled");switchPage(1)}}
+  else{localStorage.setItem("commissionPageEnabled","1");switchPage(2)}
+}
+function setCommissionCategory(cat){currentCommissionCategory=cat;document.querySelectorAll(".commission-filter").forEach(b=>b.classList.toggle("active",b.dataset.commissionCat===cat));renderCommission()}
+function commissionImageKey(id){return "commission_"+String(id)}
+function previewCommissionImage(e){const f=e.target.files[0];if(!f)return;if(!f.type.startsWith("image/")){alert("请选择图片文件。");e.target.value="";return}const r=new FileReader();r.onload=()=>{currentCommissionImage=r.result;const img=document.getElementById("commissionPreview");img.src=currentCommissionImage;img.style.display="block"};r.readAsDataURL(f)}
+function getCommissionLabel(x){return String(x?.statusLabel??x?.category??x?.status??"双人").trim()||"双人"}
+function renderCommissionFilters(){
+  const box=document.querySelector(".commission-categories");if(!box)return;
+  const labels=[...new Set(commissionItems.map(getCommissionLabel).filter(Boolean))];box.innerHTML="";
+  const add=(label,value)=>{const b=document.createElement("button");b.type="button";b.className="commission-filter"+(currentCommissionCategory===value?" active":"");b.textContent=label;b.dataset.commissionCat=value;b.onclick=()=>setCommissionCategory(value);box.appendChild(b)};
+  add("全部","all");labels.forEach(v=>add(v,v));
+}
+function openCommissionModal(id=null){editingCommissionId=id;currentCommissionImage="";document.getElementById("commissionModal").classList.add("show");document.getElementById("commissionModalTitle").textContent=id?"编辑稿件":"添加稿件";document.getElementById("commissionDeleteBtn").style.display=id?"block":"none";
+  const preview=document.getElementById("commissionPreview");preview.style.display="none";preview.removeAttribute("src");document.getElementById("commissionImageFile").value="";
+  if(id){const x=commissionItems.find(v=>v.id===id);if(!x)return;document.getElementById("commissionStatusLabel").value=getCommissionLabel(x);document.getElementById("commissionArtist").value=x.artist||"";document.getElementById("commissionPrice").value=x.price??"";if(x.imageKey)getImage(x.imageKey).then(src=>{if(src){currentCommissionImage="";preview.src=src;preview.style.display="block"}})}else{document.getElementById("commissionStatusLabel").value="双人";document.getElementById("commissionArtist").value="";document.getElementById("commissionPrice").value=""}}
+function closeCommissionModal(){document.getElementById("commissionModal").classList.remove("show")}
+async function saveCommission(){
+  const label=document.getElementById("commissionStatusLabel").value.trim();if(!label){alert("请填写稿件状态/分类");return}
+  const id=editingCommissionId||Date.now()+Math.random();let old=commissionItems.find(x=>x.id===editingCommissionId);let imageKey=old?.imageKey||"";
+  if(currentCommissionImage){imageKey=commissionImageKey(id);try{await putImage(currentCommissionImage,imageKey)}catch(e){console.error(e);alert("图片保存失败，请换一张较小的图片再试。");return}}
+  const data={id,category:label,statusLabel:label,artist:document.getElementById("commissionArtist").value.trim(),price:Number(document.getElementById("commissionPrice").value)||0,imageKey};
+  if(editingCommissionId){const i=commissionItems.findIndex(x=>x.id===editingCommissionId);commissionItems[i]=data}else commissionItems.unshift(data);if(saveCommissionData()){closeCommissionModal();renderCommission()}}
+async function deleteCommission(){if(!editingCommissionId)return;if(!confirm("确定删除这份约稿吗？"))return;const x=commissionItems.find(v=>v.id===editingCommissionId);if(x?.imageKey)await deleteImage(x.imageKey);commissionItems=commissionItems.filter(v=>v.id!==editingCommissionId);saveCommissionData();closeCommissionModal();renderCommission()}
+function renderCommission(){const grid=document.getElementById("commissionGrid");if(!grid)return;renderCommissionFilters();const list=currentCommissionCategory==="all"?commissionItems:commissionItems.filter(x=>getCommissionLabel(x)===currentCommissionCategory);if(!list.length){grid.className="commission-grid";grid.innerHTML='<div class="commission-empty" style="grid-column:1/-1"><div style="font-size:28px;margin-bottom:10px">✦</div>暂时没有约稿稿件</div>';return}grid.className="commission-grid";grid.innerHTML="";list.forEach(x=>{const card=document.createElement("article");card.className="commission-card";const media=document.createElement("div");if(x.imageKey){const img=document.createElement("img");img.className="commission-card-img";img.alt="约稿稿件";media.appendChild(img);getImage(x.imageKey).then(src=>{if(src)img.src=src;else media.innerHTML='<div class="commission-no-img">暂无图片</div>'})}else{media.className="commission-no-img";media.textContent="暂无图片"}const info=document.createElement("div");info.className="commission-info";info.innerHTML='<div class="commission-meta">'+escapeHtml(x.artist||"未填写画师")+' · ¥'+Number(x.price||0).toFixed(2)+'</div><span class="commission-tag">'+escapeHtml(getCommissionLabel(x))+'</span>';card.append(media,info);card.onclick=()=>openCommissionModal(x.id);grid.appendChild(card)})}
+function exportCommissionBackup(){downloadBlob(new Blob([JSON.stringify({app:"我的谷子-约稿",version:1,exportedAt:new Date().toISOString(),commissionItems},null,2)],{type:"application/json;charset=utf-8"}),"我的谷子_约稿备份_"+new Date().toISOString().slice(0,10)+".json")}
+function importCommissionBackup(e){const f=e.target.files[0];e.target.value="";if(!f)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);if(!Array.isArray(o.commissionItems))throw new Error();if(!confirm("导入约稿备份会覆盖当前约稿数据，确定继续吗？"))return;commissionItems=o.commissionItems.map(x=>({...x,id:x.id??Date.now()+Math.random()}));saveCommissionData();renderCommission();alert("约稿备份导入成功，共 "+commissionItems.length+" 份稿件。")}catch(err){console.error(err);alert("导入失败：备份文件格式不正确。")}};r.readAsText(f,"utf-8")}
+document.addEventListener("DOMContentLoaded",async()=>{const c=localStorage.getItem("pageBackground");if(c)previewBackground(c);renderCategories();syncTypeSelect();loadPiecesImage();await migrateLegacyImages();render();renderCommission();let enabled=localStorage.getItem("commissionPageEnabled");if(enabled===null){enabled="1";localStorage.setItem("commissionPageEnabled","1")}hidePagePeek();document.getElementById("pageSecretMenu")?.classList.remove("show");});
+let pageTouchStartX=0,pageTouchStartY=0;
+document.addEventListener("touchstart",e=>{const t=e.touches[0];pageTouchStartX=t.clientX;pageTouchStartY=t.clientY},{passive:true});
+document.addEventListener("touchend",e=>{const t=e.changedTouches[0],dx=t.clientX-pageTouchStartX,dy=t.clientY-pageTouchStartY;if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.25)return;const p2=document.getElementById("page2");if(p2?.classList.contains("active")){if(dx<0)switchPage(1)}else if(dx>0&&localStorage.getItem("commissionPageEnabled")==="1"){switchPage(2)}},{passive:true});
+document.addEventListener("click",e=>{const nav=document.querySelector(".page-nav");if(nav&&!nav.contains(e.target))hidePagePeek()});
+</script>
+
+</body>
+</html>
